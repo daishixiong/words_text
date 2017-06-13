@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="js/vue.js"></script>
+    <title></title>
+    <style>
+        ul ,li {
+            list-style: none;
+        }
+        body{
+          background-color: dodgerblue;
+        }
+        #main{
+            width: 50%;
+            margin:0 auto;
+            text-align: center;
+        }
+        .lab{
+            color:#fff;
+            font-size:38px;
+            vertical-align: middle;
+        }
+        .inp{
+            height:40px;
+            line-height: 40px;
+            width:300px;
+            margin:10px;
+            border-radius: 5px;
+            outline: none;
+            border:none;
+        }
+        button{
+            width:100px;
+            height:50px;
+            background-color:red;
+            border:none;
+            outline: none;
+            border-radius: 5px;
+            color:#fff;
+            font-size:15px;
+        }
+        button:hover{
+            cursor:pointer;
+            background-color:#e4393c;
+        }
+        .save_list{
+            position:relative;
+            top:0px;
+            left:0px;
+            width: 500px;
+
+        }
+        .all_li{
+            margin:10px;padding-left:25%;
+            display:flex;
+
+        }
+        .all_li span{
+            color:#fff;
+            font-size:26px;
+        }
+        .t{
+            width:300px;
+            height:42px;
+            border-radius:5px;
+            border:none;
+            outline:none;
+        }
+      .go_text  p span{
+            color:#fff;
+            font-size:20px;
+        }
+        .go_text p{
+            margin-left:50px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="example">
+    <to-do-box></to-do-box>
+</div>
+<script type="text/x-template" id="box-template">
+    <div id="main">
+        <h1>单词测试</h1>
+        <to-do-input v-show="true"></to-do-input>
+        <to-do-list></to-do-list>
+        <to-do-test></to-do-test>
+    </div>
+</script>
+
+<script type="text/x-template" id="input-template">
+    <div style="text-align:left; margin-left:28%;">
+            <label class="lab">英文</label><input class="inp" type="text" v-model="English" @change="toParent1()"/> <br/>
+            <label class="lab">中文</label><input class="inp" type="text" v-model="China" @change="toParent2()"/>
+    </div>
+</script>
+
+
+<script type="text/x-template" id="list-template">
+    <div>
+        <ul style="margin-bottom:50px;">
+            <to-do-item></to-do-item>
+            <li v-for="(temp,index) in Wlist" v-if="index%2!=0"
+                class="all_li"
+                style="
+               ">
+                <span style="display: block;width: 100px;">{{temp}}</span><input type="text" class="t" @change="toParent3()"/>
+            </li>
+        </ul>
+    </div>
+</script>
+
+
+<script type="text/x-template" id="item-template">
+    <div style="margin-right:40%; ">
+     <li v-show="isShow"><button>保存生词</button></li>
+    </div>
+</script>
+
+
+<script type="text/x-template" id="test-template">
+    <div class="go_text" style="width: 52%;
+    transform: translateX(66px);">
+        <button @click="handleClick()">开始测试</button>
+        <p v-show="isShow"><span>正确个数为：{{trueCount}}</span></p>
+        <p  v-show="isShow"><span>错误个数为：{{falseCount}}</span></p>
+        <p  v-show="isShow"><span>正确率为：{{Math.floor(trueCount/(trueCount+falseCount)*100)+"%"}}</span></p>
+        <button   v-show="isShow" @click="toIndex()">重新开始</button>
+    </div>
+
+</script>
+</body>
+
+
+<script>
+
+    var bus=new Vue();
+//    总盒子
+    Vue.component('to-do-box',{
+
+        data:function(){
+            return{
+                list:[],
+                list2:[]
+
+            }
+        },
+        updated:function(){
+            console.log('跟新了');
+        },
+        template:'#box-template'
+    });
+
+    Vue.component('to-do-input',{
+        data:function(){
+            return {
+                China:"",
+                English:""
+                //obj:{}
+            }
+        },
+        methods:{
+            toParent1:function(){
+                if(this.English!=""){
+                    //console.log(this.English);
+                    //console.log($refs.English.value);
+                    //console.log(this.obj.value,this.English);
+                   this.$parent.list.push(this.English);
+
+
+
+            }
+                //this.$parent.list.push(this.English);
+            },
+            toParent2:function(){
+               if(this.China!="") {
+//                //console.log(this.China);
+//                   if(this.obj.value!=""){
+//
+//                      this.obj.key=this.China;
+//
+//                      this.$parent.list.push(this.obj);
+                this.$parent.list.push(this.China);
+                   this.English='';
+                   this.China='';
+//                   }
+               }
+
+            }
+        },
+        watch:{
+          China:function(value1,value2){
+              //console.log(value1);
+          },
+            English:function(value1,value2){
+               // console.log(value1)
+            }
+        },
+        template:'#input-template'
+    });
+
+    Vue.component('to-do-list',{
+        data:function(){
+            return {
+                Wlist:this.$parent.list
+
+            }
+        },
+        updated:function(){
+            console.log('跟新了 to-do-list');
+
+        },
+        methods:{
+            toParent3:function(e){
+                var Inputs=document.getElementsByClassName('t');
+               // console.log(Inputs);
+                for(var j=0;j<Inputs.length;j++){
+                    var txt=Inputs[j].value;
+                    if(txt!=""&&this.$parent.list2.indexOf(txt)==-1)
+                        {this.$parent.list2.push(txt);}
+                    //console.log(txt);
+                }
+            }
+        },
+        template:'#list-template'
+    });
+
+    Vue.component('to-do-item',{
+        data:function(){
+            return {
+                isShow:true
+
+
+            }
+        },
+        template:'#item-template'
+    });
+
+    Vue.component('to-do-test',{
+        data:function(){
+            return {
+                trueCount:"",
+                falseCount:'',
+                isShow:false
+            }
+        },
+        methods:{
+            handleClick:function(){
+                //console.log(111);
+                //console.log(this.$parent.list2);
+                var Msg=this.$parent.list;
+                var newMsg=this.$parent.list2;
+                var a=0;
+                var b=0;
+               // console.log(Msg.length +"   "+newMsg.length);
+                for(var i= 0,k=0;i<newMsg.length,k<newMsg.length;i++,k++){
+                    var index=2*i;
+                    var oldValue=Msg[index];
+                    var newValue=newMsg[k];
+//                    console.log("旧值为"+oldValue);
+//                    console.log("新值为"+newValue);
+
+                    if((oldValue==newValue)&&0<=a&&a<=newMsg.length&&0<=b&&b<=newMsg.length){
+                        parseFloat(a++);
+                    }else if((oldValue!=newValue)&&0<=a&&a<=newMsg.length&&0<=b&&b<=newMsg.length){
+                        if(a>0){
+                            parseFloat(b++);
+                            parseFloat(a--);
+                        }
+                    }
+                }
+              // console.log("正确个数为"+a +"错误个数为"+b);
+                this.trueCount=a; this.falseCount=b;
+                if(newMsg.length!=0){
+                    this.isShow=true;
+                }
+            },
+            toIndex:function(){
+                window.location.href='word_test.html'
+            }
+        },
+
+        template:'#test-template'
+    });
+
+
+
+    new Vue({
+        el:'#example',
+        data:{
+            msg:"Hello Vue"
+        }
+    })
+
+</script>
+</html>
